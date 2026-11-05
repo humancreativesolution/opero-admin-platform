@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "pnpm"
+    "packageManager": "pnpm",
+    "analytics": "ec735fd3-7f28-45cb-83a5-ef3388419bee"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -30,7 +31,7 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.css"
             ],
             "server": "src/main.server.ts",
             "outputMode": "server",
@@ -67,6 +68,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "opero-admin-tool:build:production"

@@ -13,7 +13,13 @@
     "experimentalDecorators": true,
     "importHelpers": true,
     "target": "ES2022",
-    "module": "preserve"
+    "module": "preserve",
+    "baseUrl": "./",
+    "paths": {
+      "@lib/*": ["src/app/lib/*"],
+      "@res": ["src/app/core/models"],
+      "@res/*": ["src/app/core/models/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

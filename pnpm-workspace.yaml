@@ -1,3 +1,7 @@
+allowBuilds:
+  '@parcel/watcher': true
+  less: false
+  nx: false
 minimumReleaseAgeExclude:
   - '@angular-devkit/architect@0.2102.20'
   - '@angular-devkit/core@21.2.20'
