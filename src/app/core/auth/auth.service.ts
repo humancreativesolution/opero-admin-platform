@@ -1,7 +1,7 @@
-import { Injectable, signal, computed, PLATFORM_ID, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { User, LoginInput } from '@res/index';
+import { computed, Injectable, inject, PLATFORM_ID, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { LoginInput, User } from '@res/index';
 import { AuthGql } from './auth.gql';
 
 @Injectable({ providedIn: 'root' })
@@ -11,7 +11,11 @@ export class AuthService {
   private router = inject(Router);
 
   readonly currentUser = signal<User | null>(this.getStoredUser());
-  readonly isAuthenticated = computed(() => !!this.currentUser() && (!isPlatformBrowser(this.platformId) || !!localStorage.getItem('access_token')));
+  readonly isAuthenticated = computed(
+    () =>
+      !!this.currentUser() &&
+      (!isPlatformBrowser(this.platformId) || !!localStorage.getItem('access_token')),
+  );
 
   async login(input: LoginInput): Promise<void> {
     const { accessToken, user } = await this.authGql.login(input);

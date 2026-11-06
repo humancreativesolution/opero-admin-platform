@@ -1,8 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
+import { ErrorHelper, UNAUTHENTICATED } from '@lib/graphql/error';
 import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -24,19 +25,17 @@ export class LoginPage {
   error = '';
 
   async submitLogin() {
-    console.log('[LoginPage] submitLogin triggered, form valid:', this.loginForm.valid, 'value:', this.loginForm.value);
-    if (this.loginForm.invalid) return;
+    const { email, password } = this.loginForm.value;
+    if (this.loginForm.invalid || !email || !password) return;
     this.loading = true;
     this.error = '';
-    const { email, password } = this.loginForm.value;
     try {
-      console.log('[LoginPage] calling auth.login...');
-      await this.auth.login({ email: email!, password: password! });
-      console.log('[LoginPage] login success, navigating to /tenants');
+      await this.auth.login({ email, password });
       this.router.navigate(['/tenants']);
-    } catch (err: any) {
-      console.error('[LoginPage] login caught error:', err);
-      this.error = err.code === 'UNAUTHORIZED' ? 'Invalid email or password' : `Login failed (${err.code})`;
+    } catch (err) {
+      const code = ErrorHelper.isErrorInfo(err) ? err.code : 'UNKNOWN';
+      this.error =
+        code === UNAUTHENTICATED ? 'Invalid email or password' : `Login failed (${code})`;
     } finally {
       this.loading = false;
     }

@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../core/auth/auth.service';
-import { provideIcons, NgIconComponent } from '@ng-icons/core';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
-  lucideBuilding2,
-  lucideUsers,
-  lucideFileText,
   lucideActivity,
+  lucideBuilding2,
+  lucideFileText,
   lucideLogOut,
-  lucideShield
+  lucideShield,
+  lucideUsers,
 } from '@ng-icons/lucide';
+import { AuthService } from '../../core/auth/auth.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -22,8 +22,8 @@ import {
       lucideFileText,
       lucideActivity,
       lucideLogOut,
-      lucideShield
-    })
+      lucideShield,
+    }),
   ],
   template: `
     <aside class="w-64 border-r border-slate-200 bg-white flex flex-col h-full select-none">
@@ -102,7 +102,7 @@ import {
         </div>
       </div>
     </aside>
-  `
+  `,
 })
 export class SidebarComponent {
   private auth = inject(AuthService);

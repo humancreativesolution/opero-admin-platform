@@ -1,35 +1,48 @@
-import { apollo, gql, FetchResult, MutationOptions, OperationVariables, ApolloQueryResult, QueryOptions } from './apollo';
+import {
+  type ApolloClient,
+  apollo,
+  type FetchResult,
+  gql,
+  type MutationOptions,
+  type OperationVariables,
+  type QueryOptions,
+} from './apollo';
 import { ErrorHelper } from './error';
 
+/**
+ * Base class untuk service GraphQL. Error selalu dinormalisasi lewat
+ * ErrorHelper.parse sehingga pemanggil menerima { code, message }.
+ *
+ * Catatan: jangan log query/variables di sini — query login memuat password.
+ */
 export class GraphQL {
-  protected async mutate<TData = any, TVariables extends OperationVariables = OperationVariables>(
+  protected async mutate<
+    TData = unknown,
+    TVariables extends OperationVariables = OperationVariables,
+  >(
     query: string,
-    options?: MutationOptions<TData, TVariables>
+    options?: Omit<MutationOptions<TData, TVariables>, 'mutation'>,
   ): Promise<FetchResult<TData>> {
-    console.log('[GraphQL] mutate called, query:', query);
     try {
-      return await (apollo as any).mutate({
+      return await apollo.mutate<TData, TVariables>({
+        ...options,
         mutation: gql`${query}`,
-        ...(options || {}),
-      });
-    } catch (error: any) {
-      console.error('[GraphQL] mutate error:', error);
+      } as MutationOptions<TData, TVariables>);
+    } catch (error) {
       throw ErrorHelper.parse(error);
     }
   }
 
-  protected async query<T = any, TVariables extends OperationVariables = OperationVariables>(
+  protected async query<T = unknown, TVariables extends OperationVariables = OperationVariables>(
     query: string,
-    options?: Partial<QueryOptions<TVariables, T>>
-  ): Promise<ApolloQueryResult<T>> {
-    console.log('[GraphQL] query called, query:', query);
+    options?: Omit<QueryOptions<TVariables, T>, 'query'>,
+  ): Promise<ApolloClient.QueryResult<T>> {
     try {
-      return await (apollo as any).query({
+      return await apollo.query<T, TVariables>({
+        ...options,
         query: gql`${query}`,
-        ...(options || {}),
-      });
-    } catch (error: any) {
-      console.error('[GraphQL] query error:', error);
+      } as QueryOptions<TVariables, T>);
+    } catch (error) {
       throw ErrorHelper.parse(error);
     }
   }

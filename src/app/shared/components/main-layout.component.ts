@@ -1,9 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { lucideBell, lucideMenu, lucideSearch } from '@ng-icons/lucide';
 import { SidebarComponent } from './sidebar.component';
-import { AuthService } from '../../core/auth/auth.service';
-import { provideIcons, NgIconComponent } from '@ng-icons/core';
-import { lucideMenu, lucideBell, lucideSearch } from '@ng-icons/lucide';
 
 @Component({
   selector: 'app-main-layout',
@@ -13,8 +12,8 @@ import { lucideMenu, lucideBell, lucideSearch } from '@ng-icons/lucide';
     provideIcons({
       lucideMenu,
       lucideBell,
-      lucideSearch
-    })
+      lucideSearch,
+    }),
   ],
   template: `
     <div class="flex h-screen bg-slate-50 text-slate-900 overflow-hidden">
@@ -57,6 +56,6 @@ import { lucideMenu, lucideBell, lucideSearch } from '@ng-icons/lucide';
         </main>
       </div>
     </div>
-  `
+  `,
 })
 export class MainLayoutComponent {}

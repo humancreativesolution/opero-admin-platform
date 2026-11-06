@@ -5,11 +5,7 @@ const config: CodegenConfig = {
   documents: ['src/**/*.graphql', 'src/**/*.ts'],
   generates: {
     'src/app/core/models/generated.graphql.ts': {
-      plugins: [
-        'typescript',
-        'typescript-operations',
-        'typescript-apollo-angular',
-      ],
+      plugins: ['typescript', 'typescript-operations', 'typescript-apollo-angular'],
       config: {
         skipTypename: false,
         withHooks: true,

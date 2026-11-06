@@ -1,6 +1,15 @@
-import { ApolloClient, ApolloLink, InMemoryCache, createHttpLink, gql } from '@apollo/client/core';
-import type { ApolloQueryResult, DefaultContext, FetchResult, MutationOptions, OperationVariables, QueryOptions } from '@apollo/client/core';
-import { onError } from '@apollo/client/link/error';
+import { CombinedGraphQLErrors } from '@apollo/client';
+import type {
+  ApolloQueryResult,
+  DefaultContext,
+  FetchResult,
+  MutationOptions,
+  OperationVariables,
+  QueryOptions,
+} from '@apollo/client/core';
+import { ApolloClient, ApolloLink, createHttpLink, gql, InMemoryCache } from '@apollo/client/core';
+import { ErrorLink } from '@apollo/client/link/error';
+import { UNAUTHENTICATED } from './error';
 
 const GRAPHQL_URL = '/graphql';
 
@@ -14,17 +23,19 @@ const authLink = new ApolloLink((operation, forward) => {
   return forward(operation);
 });
 
-const errorLink = onError((errorResponse: any) => {
-  const graphQLErrors = errorResponse.graphQLErrors;
-  if (graphQLErrors) {
-    for (const err of graphQLErrors) {
-      const code = err.extensions?.['code'];
-      if (code === 'UNAUTHORIZED') {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }
-    }
+const errorLink = new ErrorLink(({ error }) => {
+  if (!CombinedGraphQLErrors.is(error)) return;
+
+  const isUnauthenticated = error.errors.some(
+    (err) => err.extensions?.['code'] === UNAUTHENTICATED,
+  );
+
+  // Hanya logout bila sesi yang ada sudah tidak valid. Login dengan password
+  // salah juga UNAUTHENTICATED, tapi belum ada token sehingga tidak di-redirect.
+  if (isUnauthenticated && localStorage.getItem('access_token')) {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
   }
 });
 
@@ -35,5 +46,12 @@ export const apollo = new ApolloClient({
   link: ApolloLink.from([errorLink, authLink, httpLink]),
 });
 
+export type {
+  ApolloQueryResult,
+  DefaultContext,
+  FetchResult,
+  MutationOptions,
+  OperationVariables,
+  QueryOptions,
+};
 export { ApolloClient, gql };
-export type { ApolloQueryResult, DefaultContext, FetchResult, MutationOptions, OperationVariables, QueryOptions };
