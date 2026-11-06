@@ -92,7 +92,6 @@ export class TenantsGql extends GraphQL {
     return this.required(result.data).updateTenantStatus;
   }
 
-  /** Tambah user (mis. owner baru) ke tenant yang sudah ada. */
   async addUser(input: AddTenantUserInput): Promise<TenantUser> {
     const gql = mutation('RegisterTenantUser($input: RegisterInput!)', {
       register: params({ registerInput: '$input' }, tenantUserFields),

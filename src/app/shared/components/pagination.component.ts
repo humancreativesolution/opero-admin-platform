@@ -4,32 +4,7 @@ import type { PaginationMeta } from '@res/index';
 @Component({
   selector: 'app-pagination',
   standalone: true,
-  template: `
-    @if (meta(); as m) {
-      <div class="flex items-center justify-between gap-4 px-4 py-3 border-t border-slate-100 text-xs text-slate-500">
-        <span>{{ rangeLabel() }}</span>
-        <div class="flex items-center gap-2">
-          <button
-            type="button"
-            class="h-8 px-3 rounded-md border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
-            [disabled]="!m.hasPrevPage"
-            (click)="pageChange.emit(m.page - 1)"
-          >
-            Previous
-          </button>
-          <span>Page {{ m.page }} of {{ m.totalPages || 1 }}</span>
-          <button
-            type="button"
-            class="h-8 px-3 rounded-md border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
-            [disabled]="!m.hasNextPage"
-            (click)="pageChange.emit(m.page + 1)"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-    }
-  `,
+  templateUrl: './pagination.component.html',
 })
 export class PaginationComponent {
   readonly meta = input<PaginationMeta | null>(null);

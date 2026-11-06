@@ -9,12 +9,7 @@ import {
 } from './apollo';
 import { ErrorHelper } from './error';
 
-/**
- * Base class untuk service GraphQL. Error selalu dinormalisasi lewat
- * ErrorHelper.parse sehingga pemanggil menerima { code, message }.
- *
- * Catatan: jangan log query/variables di sini — query login memuat password.
- */
+/** Never log queries or variables here: the login operation carries the password. */
 export class GraphQL {
   protected async mutate<
     TData = unknown,

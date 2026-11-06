@@ -1,4 +1,3 @@
-/** Kelas Tailwind standar supaya form & tombol konsisten di semua halaman. */
 export const ui = {
   label: 'text-sm font-medium text-slate-700',
   input:
@@ -22,7 +21,6 @@ export const ui = {
   td: 'px-4 py-3 text-sm text-slate-700 align-middle',
 } as const;
 
-/** Warna badge untuk status/role. */
 export const badgeClass: Record<string, string> = {
   ACTIVE: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   SUSPENDED: 'bg-amber-50 text-amber-700 border-amber-200',

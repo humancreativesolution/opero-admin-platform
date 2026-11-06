@@ -5,12 +5,11 @@ export interface GraphQLErrorInfo {
   message: string;
 }
 
-/** Kode error dari backend (NestJS + Apollo) saat token tidak ada/tidak valid atau kredensial salah. */
 export const UNAUTHENTICATED = 'UNAUTHENTICATED';
 
 /**
- * NestJS menaruh pesan validasi (class-validator) di extensions.originalError.message,
- * sedangkan message utamanya generik ("Bad Request Exception").
+ * NestJS puts class-validator messages in extensions.originalError.message;
+ * the top-level message is generic ("Bad Request Exception").
  */
 function readOriginalMessage(originalError: unknown): string | undefined {
   if (typeof originalError !== 'object' || originalError === null) return undefined;
@@ -25,7 +24,6 @@ function readOriginalMessage(originalError: unknown): string | undefined {
 }
 
 export const ErrorHelper = {
-  /** Normalisasi error Apollo Client v4 menjadi { code, message }. */
   parse(error: unknown): GraphQLErrorInfo {
     if (CombinedGraphQLErrors.is(error) && error.errors.length > 0) {
       const [first] = error.errors;

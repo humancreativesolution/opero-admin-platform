@@ -11,7 +11,6 @@ export const authGuard: CanActivateFn = () => {
   return router.createUrlTree(['/login']);
 };
 
-/** Hak akses UI mengikuti backend; backend tetap memvalidasi setiap request. */
 export const platformRoleGuard = (...allowedRoles: PlatformRole[]): CanActivateFn => {
   return () => {
     const auth = inject(AuthService);

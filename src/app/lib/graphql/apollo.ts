@@ -30,8 +30,8 @@ const errorLink = new ErrorLink(({ error }) => {
     (err) => err.extensions?.['code'] === UNAUTHENTICATED,
   );
 
-  // Hanya logout bila sesi yang ada sudah tidak valid. Login dengan password
-  // salah juga UNAUTHENTICATED, tapi belum ada token sehingga tidak di-redirect.
+  // Log out only when an existing session became invalid: a wrong password is also
+  // UNAUTHENTICATED, but there is no token yet.
   if (isUnauthenticated && localStorage.getItem('access_token')) {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');

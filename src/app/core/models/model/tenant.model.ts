@@ -2,7 +2,6 @@ export type TenantStatus = 'ACTIVE' | 'SUSPENDED' | 'ARCHIVED';
 
 export const TENANT_STATUSES: readonly TenantStatus[] = ['ACTIVE', 'SUSPENDED', 'ARCHIVED'];
 
-/** Role user tenant (sesuai enum UserRole di backend). */
 export type TenantUserRole = 'OWNER' | 'ADMIN' | 'MANAGER' | 'PURCHASING' | 'WAREHOUSE' | 'CASHIER';
 
 export const TENANT_USER_ROLES: readonly TenantUserRole[] = [

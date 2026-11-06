@@ -5,57 +5,11 @@ import { errorMessage, showError, TENANT_PASSWORD_MIN } from '../../../shared/ut
 import { ui } from '../../../shared/utils/ui';
 import { TenantsGql } from '../tenants.gql';
 
-/** Tambah user ke tenant yang sudah ada, mis. owner pengganti. */
 @Component({
   selector: 'app-tenant-add-user-form',
   standalone: true,
   imports: [ReactiveFormsModule],
-  template: `
-    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
-      <div class="grid grid-cols-2 gap-4">
-        <div class="space-y-1.5">
-          <label [class]="ui.label" for="addFullName">Full name</label>
-          <input id="addFullName" formControlName="fullName" [class]="ui.input" />
-          @if (showError(form, 'fullName')) {
-            <p [class]="ui.fieldError">At least 3 characters.</p>
-          }
-        </div>
-        <div class="space-y-1.5">
-          <label [class]="ui.label" for="addRole">Role</label>
-          <select id="addRole" formControlName="role" [class]="ui.select">
-            @for (role of roles; track role) {
-              <option [value]="role">{{ role }}</option>
-            }
-          </select>
-        </div>
-      </div>
-      <div class="space-y-1.5">
-        <label [class]="ui.label" for="addEmail">Email</label>
-        <input id="addEmail" type="email" formControlName="email" [class]="ui.input" />
-        @if (showError(form, 'email')) {
-          <p [class]="ui.fieldError">Enter a valid email.</p>
-        }
-      </div>
-      <div class="space-y-1.5">
-        <label [class]="ui.label" for="addPassword">Initial password</label>
-        <input id="addPassword" type="password" autocomplete="new-password" formControlName="password" [class]="ui.input" />
-        @if (showError(form, 'password')) {
-          <p [class]="ui.fieldError">At least {{ minPassword }} characters.</p>
-        }
-      </div>
-
-      @if (error()) {
-        <div [class]="ui.formError">{{ error() }}</div>
-      }
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" [class]="ui.btnSecondary" (click)="cancelled.emit()">Cancel</button>
-        <button type="submit" [class]="ui.btnPrimary" [disabled]="form.invalid || submitting()">
-          {{ submitting() ? 'Adding…' : 'Add user' }}
-        </button>
-      </div>
-    </form>
-  `,
+  templateUrl: './tenant-add-user-form.component.html',
 })
 export class TenantAddUserFormComponent {
   private fb = inject(FormBuilder);

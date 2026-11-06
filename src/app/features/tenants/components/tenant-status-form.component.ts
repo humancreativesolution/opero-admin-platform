@@ -13,57 +13,11 @@ const CONSEQUENCES: Record<TenantStatus, string> = {
     'The tenant is closed: all sessions end and logins are blocked. Data is kept for audit. Only SUPER_ADMIN can undo this.',
 };
 
-/** Ubah status tenant; alasan wajib untuk SUSPENDED/ARCHIVED (sesuai backend). */
 @Component({
   selector: 'app-tenant-status-form',
   standalone: true,
   imports: [ReactiveFormsModule],
-  template: `
-    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
-      <p
-        class="rounded-md border px-3 py-2 text-sm"
-        [class.border-amber-200]="targetStatus() !== 'ACTIVE'"
-        [class.bg-amber-50]="targetStatus() !== 'ACTIVE'"
-        [class.text-amber-800]="targetStatus() !== 'ACTIVE'"
-        [class.border-emerald-200]="targetStatus() === 'ACTIVE'"
-        [class.bg-emerald-50]="targetStatus() === 'ACTIVE'"
-        [class.text-emerald-800]="targetStatus() === 'ACTIVE'"
-      >
-        {{ consequence() }}
-      </p>
-
-      @if (requiresReason()) {
-        <div class="space-y-1.5">
-          <label [class]="ui.label" for="statusReason">Reason</label>
-          <textarea
-            id="statusReason"
-            formControlName="reason"
-            [class]="ui.textarea"
-            placeholder="e.g. Subscription unpaid for 2 months"
-          ></textarea>
-          @if (showError(form, 'reason')) {
-            <p [class]="ui.fieldError">A reason is required (max 500 characters).</p>
-          }
-          <p class="text-xs text-slate-500">Recorded in the tenant's audit log.</p>
-        </div>
-      }
-
-      @if (error()) {
-        <div [class]="ui.formError">{{ error() }}</div>
-      }
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" [class]="ui.btnSecondary" (click)="cancelled.emit()">Cancel</button>
-        <button
-          type="submit"
-          [class]="targetStatus() === 'ACTIVE' ? ui.btnPrimary : ui.btnDanger"
-          [disabled]="form.invalid || submitting()"
-        >
-          {{ submitting() ? 'Saving…' : actionLabel() }}
-        </button>
-      </div>
-    </form>
-  `,
+  templateUrl: './tenant-status-form.component.html',
 })
 export class TenantStatusFormComponent {
   private fb = inject(FormBuilder);

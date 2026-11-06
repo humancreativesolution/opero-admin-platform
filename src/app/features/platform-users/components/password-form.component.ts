@@ -17,79 +17,11 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
   return newPassword && confirm && newPassword !== confirm ? { mismatch: true } : null;
 }
 
-/**
- * Dua mode:
- * - dengan `user`: SUPER_ADMIN me-reset password staf lain.
- * - tanpa `user`: staf mengganti password akunnya sendiri (butuh password saat ini).
- */
 @Component({
   selector: 'app-password-form',
   standalone: true,
   imports: [ReactiveFormsModule],
-  template: `
-    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
-      @if (isOwn()) {
-        <div class="space-y-1.5">
-          <label [class]="ui.label" for="pwCurrent">Current password</label>
-          <input
-            id="pwCurrent"
-            type="password"
-            autocomplete="current-password"
-            formControlName="currentPassword"
-            [class]="ui.input"
-          />
-          @if (showError(form, 'currentPassword')) {
-            <p [class]="ui.fieldError">Current password is required.</p>
-          }
-        </div>
-      }
-      <div class="space-y-1.5">
-        <label [class]="ui.label" for="pwNew">New password</label>
-        <input
-          id="pwNew"
-          type="password"
-          autocomplete="new-password"
-          formControlName="newPassword"
-          [class]="ui.input"
-        />
-        @if (showError(form, 'newPassword')) {
-          <p [class]="ui.fieldError">At least {{ minPassword }} characters.</p>
-        }
-      </div>
-      <div class="space-y-1.5">
-        <label [class]="ui.label" for="pwConfirm">Confirm new password</label>
-        <input
-          id="pwConfirm"
-          type="password"
-          autocomplete="new-password"
-          formControlName="confirmPassword"
-          [class]="ui.input"
-        />
-        @if (form.hasError('mismatch') && form.controls.confirmPassword.touched) {
-          <p [class]="ui.fieldError">Passwords do not match.</p>
-        }
-      </div>
-
-      <p class="text-xs text-slate-500">
-        {{
-          isOwn()
-            ? 'You will need to log in again with the new password.'
-            : 'All existing sessions of this user are logged out.'
-        }}
-      </p>
-
-      @if (error()) {
-        <div [class]="ui.formError">{{ error() }}</div>
-      }
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" [class]="ui.btnSecondary" (click)="cancelled.emit()">Cancel</button>
-        <button type="submit" [class]="ui.btnPrimary" [disabled]="form.invalid || submitting()">
-          {{ submitting() ? 'Saving…' : isOwn() ? 'Change password' : 'Reset password' }}
-        </button>
-      </div>
-    </form>
-  `,
+  templateUrl: './password-form.component.html',
 })
 export class PasswordFormComponent implements OnInit {
   private fb = inject(FormBuilder);

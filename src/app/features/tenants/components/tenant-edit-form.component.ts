@@ -14,40 +14,7 @@ import { TenantsGql } from '../tenants.gql';
   selector: 'app-tenant-edit-form',
   standalone: true,
   imports: [ReactiveFormsModule],
-  template: `
-    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
-      <div class="space-y-1.5">
-        <label [class]="ui.label" for="editName">Business name</label>
-        <input id="editName" formControlName="name" [class]="ui.input" />
-        @if (showError(form, 'name')) {
-          <p [class]="ui.fieldError">Business name is required.</p>
-        }
-      </div>
-      <div class="space-y-1.5">
-        <label [class]="ui.label" for="editSubdomain">Subdomain</label>
-        <input id="editSubdomain" formControlName="subdomain" [class]="ui.input" />
-        @if (showError(form, 'subdomain')) {
-          <p [class]="ui.fieldError">Lowercase letters, numbers, and hyphens only.</p>
-        }
-        <p class="text-xs text-amber-700">Changing the subdomain changes the tenant's login URL.</p>
-      </div>
-      <div class="space-y-1.5">
-        <label [class]="ui.label" for="editDomains">Extra domains</label>
-        <input id="editDomains" formControlName="domains" [class]="ui.input" placeholder="pos.example.com, example.com" />
-      </div>
-
-      @if (error()) {
-        <div [class]="ui.formError">{{ error() }}</div>
-      }
-
-      <div class="flex justify-end gap-2 pt-2">
-        <button type="button" [class]="ui.btnSecondary" (click)="cancelled.emit()">Cancel</button>
-        <button type="submit" [class]="ui.btnPrimary" [disabled]="form.invalid || form.pristine || submitting()">
-          {{ submitting() ? 'Saving…' : 'Save changes' }}
-        </button>
-      </div>
-    </form>
-  `,
+  templateUrl: './tenant-edit-form.component.html',
 })
 export class TenantEditFormComponent {
   private fb = inject(FormBuilder);
@@ -70,7 +37,6 @@ export class TenantEditFormComponent {
   constructor() {
     effect(() => {
       const tenant = this.tenant();
-      // Domain utama = subdomain; sisanya domain tambahan.
       const extraDomains = tenant.domains.filter((domain) => domain !== tenant.subdomain);
       this.form.reset({
         name: tenant.name,

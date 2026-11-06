@@ -7,7 +7,6 @@ import { mutation, params, types } from 'typed-graphqlify';
 @Injectable({ providedIn: 'root' })
 export class AuthGql extends GraphQL {
   async login(input: LoginInput): Promise<AuthResponse> {
-    // Kredensial dikirim sebagai variables, tidak disisipkan ke string query.
     const gql = mutation('Login($input: LoginInput!)', {
       login: params(
         { loginInput: '$input' },

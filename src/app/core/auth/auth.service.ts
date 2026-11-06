@@ -20,7 +20,6 @@ export class AuthService {
   readonly role = computed<PlatformRole | null>(() => this.currentUser()?.role ?? null);
   readonly isSuperAdmin = computed(() => this.role() === 'SUPER_ADMIN');
 
-  /** SUPER_ADMIN selalu lolos; selain itu harus termasuk role yang diizinkan. */
   hasRole(...roles: PlatformRole[]): boolean {
     const role = this.role();
     return role === 'SUPER_ADMIN' || (role !== null && roles.includes(role));
