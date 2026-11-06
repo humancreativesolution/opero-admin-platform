@@ -67,10 +67,12 @@ src/
 
 - **GraphQL Endpoint**: `http://localhost:3001/graphql` (or `ENVIRONMENT_API_URL`).
 - **Error Handling Protocol**:
-  - Opero BE returns GraphQLError extensions with `code` field (`UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `CONFLICT`, `BAD_REQUEST`).
-  - Read `error.graphQLErrors[0].extensions.code` in Apollo Link Error Interceptor.
-  - Automatically redirect to `/login` on `UNAUTHORIZED`.
-  - Display user-friendly Toast on `FORBIDDEN` or validation errors.
+  - Opero BE returns GraphQLError extensions with `code` field (`UNAUTHENTICATED`, `FORBIDDEN`, `NOT_FOUND`, `BAD_REQUEST`).
+  - Apollo Client v4: use `CombinedGraphQLErrors.is(error)` and `error.errors[0].extensions.code` (there is no `graphQLErrors` in v4). `ErrorHelper.parse` (`@lib/graphql/error`) normalizes this to `{ code, message }`.
+  - Validation messages live in `extensions.originalError.message`; `ErrorHelper` already reads them.
+  - `ErrorLink` redirects to `/login` on `UNAUTHENTICATED` only when a session token exists (a wrong password is also `UNAUTHENTICATED`).
+  - Show errors via `ToastService` or inline form errors.
+- **Variables, not inline values**: build operations with `typed-graphqlify` using `$variables` (see `features/*/*.gql.ts`). Never interpolate user input or passwords into the query string, and never log queries/variables.
 
 ### Key Platform Queries & Mutations (NestJS BE):
 ```graphql

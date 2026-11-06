@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/auth/auth.guard';
+import { authGuard, platformRoleGuard } from './core/auth/auth.guard';
 import { MainLayoutComponent } from './shared/components/main-layout.component';
 
 export const routes: Routes = [
@@ -19,6 +19,7 @@ export const routes: Routes = [
       },
       {
         path: 'platform-users',
+        canActivate: [platformRoleGuard()],
         loadComponent: () =>
           import('./pages/platform-users/platform-users.page').then((m) => m.PlatformUsersPage),
       },

@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { lucideBell, lucideMenu, lucideSearch } from '@ng-icons/lucide';
+import { AuthService } from '../../core/auth/auth.service';
 import { SidebarComponent } from './sidebar.component';
+import { ToastHostComponent } from './toast-host.component';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, NgIconComponent],
+  imports: [RouterOutlet, SidebarComponent, NgIconComponent, ToastHostComponent],
   providers: [
     provideIcons({
       lucideMenu,
@@ -45,7 +47,7 @@ import { SidebarComponent } from './sidebar.component';
             <div class="h-4 w-px bg-slate-200"></div>
             <div class="text-right hidden md:block">
               <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wider block">Platform Mode</span>
-              <span class="text-[10px] text-slate-500">Super Admin Access</span>
+              <span class="text-[10px] text-slate-500">{{ roleLabel() }}</span>
             </div>
           </div>
         </header>
@@ -56,6 +58,18 @@ import { SidebarComponent } from './sidebar.component';
         </main>
       </div>
     </div>
+    <app-toast-host />
   `,
 })
-export class MainLayoutComponent {}
+export class MainLayoutComponent {
+  private auth = inject(AuthService);
+
+  readonly roleLabel = computed(() => {
+    const labels: Record<string, string> = {
+      SUPER_ADMIN: 'Super Admin Access',
+      SUPPORT: 'Support Access (read-only)',
+      BILLING: 'Billing Access',
+    };
+    return labels[this.auth.role() ?? ''] ?? 'Platform Access';
+  });
+}

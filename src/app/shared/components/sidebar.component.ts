@@ -1,20 +1,24 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
   lucideActivity,
   lucideBuilding2,
   lucideFileText,
+  lucideKeyRound,
   lucideLogOut,
   lucideShield,
   lucideUsers,
 } from '@ng-icons/lucide';
 import { AuthService } from '../../core/auth/auth.service';
+import { PasswordFormComponent } from '../../features/platform-users/components/password-form.component';
+import { ToastService } from '../services/toast.service';
+import { ModalComponent } from './modal.component';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NgIconComponent],
+  imports: [RouterLink, RouterLinkActive, NgIconComponent, ModalComponent, PasswordFormComponent],
   providers: [
     provideIcons({
       lucideBuilding2,
@@ -23,6 +27,7 @@ import { AuthService } from '../../core/auth/auth.service';
       lucideActivity,
       lucideLogOut,
       lucideShield,
+      lucideKeyRound,
     }),
   ],
   template: `
@@ -49,6 +54,7 @@ import { AuthService } from '../../core/auth/auth.service';
           <span>Tenants</span>
         </a>
 
+        @if (isSuperAdmin()) {
         <a
           routerLink="/platform-users"
           routerLinkActive="bg-indigo-50 text-indigo-600 font-medium"
@@ -57,6 +63,7 @@ import { AuthService } from '../../core/auth/auth.service';
           <ng-icon name="lucideUsers" class="text-lg" />
           <span>Platform Users</span>
         </a>
+        }
 
         <a
           routerLink="/audit-logs"
@@ -93,8 +100,19 @@ import { AuthService } from '../../core/auth/auth.service';
             </div>
           </div>
           <button
+            type="button"
+            (click)="changingPassword.set(true)"
+            title="Change password"
+            aria-label="Change password"
+            class="p-1.5 rounded-md text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors shrink-0"
+          >
+            <ng-icon name="lucideKeyRound" class="text-base" />
+          </button>
+          <button
+            type="button"
             (click)="logout()"
             title="Logout"
+            aria-label="Logout"
             class="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
           >
             <ng-icon name="lucideLogOut" class="text-base" />
@@ -102,11 +120,30 @@ import { AuthService } from '../../core/auth/auth.service';
         </div>
       </div>
     </aside>
+
+    @if (changingPassword()) {
+      <!-- Form (ReactiveForms) dimuat lazy: tidak membebani bundle awal. -->
+      @defer {
+        <app-modal [open]="true" title="Change your password" (closed)="changingPassword.set(false)">
+          <app-password-form (saved)="onPasswordChanged()" (cancelled)="changingPassword.set(false)" />
+        </app-modal>
+      }
+    }
   `,
 })
 export class SidebarComponent {
   private auth = inject(AuthService);
+  private toast = inject(ToastService);
   user = this.auth.currentUser;
+  readonly isSuperAdmin = this.auth.isSuperAdmin;
+  readonly changingPassword = signal(false);
+
+  onPasswordChanged(): void {
+    this.changingPassword.set(false);
+    this.toast.success('Password changed. Please log in again.');
+    // Token lama ditolak backend setelah password berubah.
+    this.auth.logout();
+  }
 
   initials(): string {
     const name = this.user()?.fullName || this.user()?.email || 'U';

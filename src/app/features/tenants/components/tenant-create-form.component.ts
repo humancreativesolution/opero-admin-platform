@@ -1,0 +1,131 @@
+import { Component, inject, output, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import type { Tenant } from '@res/index';
+import {
+  errorMessage,
+  parseDomains,
+  SUBDOMAIN_PATTERN,
+  showError,
+  TENANT_PASSWORD_MIN,
+} from '../../../shared/utils/form';
+import { ui } from '../../../shared/utils/ui';
+import { TenantsGql } from '../tenants.gql';
+
+/** Buat tenant baru beserta akun OWNER pertamanya. */
+@Component({
+  selector: 'app-tenant-create-form',
+  standalone: true,
+  imports: [ReactiveFormsModule],
+  template: `
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-5">
+      <fieldset class="space-y-4">
+        <legend class="text-xs font-semibold uppercase tracking-wider text-slate-500">Tenant</legend>
+        <div class="space-y-1.5">
+          <label [class]="ui.label" for="tenantName">Business name</label>
+          <input id="tenantName" formControlName="tenantName" [class]="ui.input" placeholder="Toko Maju Jaya" />
+          @if (showError(form, 'tenantName')) {
+            <p [class]="ui.fieldError">Business name is required.</p>
+          }
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label [class]="ui.label" for="subdomain">Subdomain</label>
+            <input id="subdomain" formControlName="subdomain" [class]="ui.input" placeholder="majujaya" />
+            @if (showError(form, 'subdomain')) {
+              <p [class]="ui.fieldError">Lowercase letters, numbers, and hyphens only.</p>
+            }
+          </div>
+          <div class="space-y-1.5">
+            <label [class]="ui.label" for="domains">Extra domains <span class="text-slate-400">(optional)</span></label>
+            <input id="domains" formControlName="domains" [class]="ui.input" placeholder="pos.majujaya.com" />
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="space-y-4">
+        <legend class="text-xs font-semibold uppercase tracking-wider text-slate-500">Owner account</legend>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label [class]="ui.label" for="ownerFullName">Full name</label>
+            <input id="ownerFullName" formControlName="ownerFullName" [class]="ui.input" />
+            @if (showError(form, 'ownerFullName')) {
+              <p [class]="ui.fieldError">At least 3 characters.</p>
+            }
+          </div>
+          <div class="space-y-1.5">
+            <label [class]="ui.label" for="ownerEmail">Email</label>
+            <input id="ownerEmail" type="email" formControlName="ownerEmail" [class]="ui.input" />
+            @if (showError(form, 'ownerEmail')) {
+              <p [class]="ui.fieldError">Enter a valid email.</p>
+            }
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label [class]="ui.label" for="ownerPassword">Initial password</label>
+          <input id="ownerPassword" type="password" autocomplete="new-password" formControlName="ownerPassword" [class]="ui.input" />
+          @if (showError(form, 'ownerPassword')) {
+            <p [class]="ui.fieldError">At least {{ minPassword }} characters.</p>
+          }
+          <p class="text-xs text-slate-500">Share it securely with the owner and ask them to change it.</p>
+        </div>
+      </fieldset>
+
+      @if (error()) {
+        <div [class]="ui.formError">{{ error() }}</div>
+      }
+
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" [class]="ui.btnSecondary" (click)="cancelled.emit()">Cancel</button>
+        <button type="submit" [class]="ui.btnPrimary" [disabled]="form.invalid || submitting()">
+          {{ submitting() ? 'Creating…' : 'Create tenant' }}
+        </button>
+      </div>
+    </form>
+  `,
+})
+export class TenantCreateFormComponent {
+  private fb = inject(FormBuilder);
+  private tenantsGql = inject(TenantsGql);
+
+  readonly saved = output<Tenant>();
+  readonly cancelled = output<void>();
+  readonly submitting = signal(false);
+  readonly error = signal('');
+  readonly ui = ui;
+  readonly showError = showError;
+  readonly minPassword = TENANT_PASSWORD_MIN;
+
+  readonly form = this.fb.nonNullable.group({
+    tenantName: ['', [Validators.required, Validators.maxLength(150)]],
+    subdomain: ['', [Validators.required, Validators.pattern(SUBDOMAIN_PATTERN)]],
+    domains: [''],
+    ownerFullName: ['', [Validators.required, Validators.minLength(3)]],
+    ownerEmail: ['', [Validators.required, Validators.email]],
+    ownerPassword: ['', [Validators.required, Validators.minLength(TENANT_PASSWORD_MIN)]],
+  });
+
+  async submit(): Promise<void> {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    const value = this.form.getRawValue();
+    this.submitting.set(true);
+    this.error.set('');
+    try {
+      const result = await this.tenantsGql.createWithOwner({
+        tenantName: value.tenantName.trim(),
+        subdomain: value.subdomain.trim().toLowerCase(),
+        domains: parseDomains(value.domains),
+        ownerFullName: value.ownerFullName.trim(),
+        ownerEmail: value.ownerEmail.trim(),
+        ownerPassword: value.ownerPassword,
+      });
+      this.saved.emit(result.tenant);
+    } catch (error) {
+      this.error.set(errorMessage(error));
+    } finally {
+      this.submitting.set(false);
+    }
+  }
+}

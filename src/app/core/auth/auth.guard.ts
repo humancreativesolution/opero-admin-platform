@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import type { PlatformRole } from '@res/index';
 import { AuthService } from './auth.service';
 
 export const authGuard: CanActivateFn = () => {
@@ -10,13 +11,14 @@ export const authGuard: CanActivateFn = () => {
   return router.createUrlTree(['/login']);
 };
 
-export const platformRoleGuard = (allowedRoles: string[]): CanActivateFn => {
+/** Hak akses UI mengikuti backend; backend tetap memvalidasi setiap request. */
+export const platformRoleGuard = (...allowedRoles: PlatformRole[]): CanActivateFn => {
   return () => {
     const auth = inject(AuthService);
     const router = inject(Router);
-    const user = auth.currentUser();
 
-    if (user && allowedRoles.includes(user.role)) return true;
-    return router.createUrlTree(['/login']);
+    if (!auth.isAuthenticated()) return router.createUrlTree(['/login']);
+    if (auth.hasRole(...allowedRoles)) return true;
+    return router.createUrlTree(['/tenants']);
   };
 };
